@@ -1,15 +1,30 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log/slog"
 	"net"
+	"os"
 	"time"
 )
 
 // Creating a basic program that will check the exipry of a predefined sercer
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+		AddSource: true,
+	}))
+	slog.SetDefault(logger)
+
+	ctx := context.WithValue(context.Background(), "logger", logger)
+	ctx.Done()
+
+
+
+
+
 	hostname := "courselink.uoguelph.ca"
 	// this is the https port
 	port := "443"
