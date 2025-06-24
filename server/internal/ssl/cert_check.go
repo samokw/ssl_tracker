@@ -163,11 +163,11 @@ func CheckSSLCertificate(ctx context.Context, hostname Hostname) (*SSLCertificat
 		return nil, ErrInvalidHostname
 	}
 
-	dailer := &net.Dialer{
+	dialer := &net.Dialer{
 		Timeout: 10 * time.Second,
 	}
 	logger.Info("Starting SSL certificate check")
-	conn, err := dailer.DialContext(ctx, "tcp", net.JoinHostPort(hostname.String(), "443"))
+	conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(hostname.String(), "443"))
 	if err != nil {
 		logger.Error("Failed to establish TCP connection", "error", err)
 		return nil, fmt.Errorf("failed to connect to %s: %w", hostname, err)
