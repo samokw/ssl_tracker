@@ -151,7 +151,7 @@ func (h Hostname) IsValid() bool {
 // CheckSSLCertificate does a SSL certificate check on the provided hostname.
 //
 // 1. It Establishes a TCP connection on the HTTPS port (443)
-// 2. Preforms a TCP handshake (SYN-SYN-ACK)
+// 2. Performs a TCP handshake (SYN-SYN-ACK)
 // 3. Retrieves the server's SSL certificate
 // 4. Calculates the expiry Infomation
 //
