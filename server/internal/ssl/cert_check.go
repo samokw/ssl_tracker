@@ -153,7 +153,7 @@ func (h Hostname) IsValid() bool {
 // 1. It Establishes a TCP connection on the HTTPS port (443)
 // 2. Performs a TCP handshake (SYN-SYN-ACK)
 // 3. Retrieves the server's SSL certificate
-// 4. Calculates the expiry Infomation
+// 4. Calculates the expiry Information
 //
 // Returns SSL certificate information or an error if a check failed
 func CheckSSLCertificate(ctx context.Context, hostname Hostname) (*SSLCertificate, error) {
