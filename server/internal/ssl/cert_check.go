@@ -1,6 +1,6 @@
 // This package provides SSL certificate checking
 //
-// It includes a way to validate hostnames, and provides infromation on the expiry of the certificates
+// It includes a way to validate hostnames, and provides information on the expiry of the certificates
 package ssl
 
 import (
