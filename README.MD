@@ -23,28 +23,41 @@ Then visit http://localhost:8080/pkg/github.com/samokw/ssl_tracker/internal/ssl/
 ```mermaid
 erDiagram
     USER ||--o{ DOMAIN : owns
-    DOMAIN ||--o{ NOTIFICATION : sends
+    USER ||--o{ USER_SETTINGS : configures
+    DOMAIN ||--o{ NOTIFICATION_LOG : tracks
 
     USER {
         int id PK
-        string email
-        string password
-        string discord_id
+        string email "User's email for notifications"
+        string name "Display name for personalized emails"
+        datetime created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    USER_SETTINGS {
+        int id PK
+        int user_id FK "REFERENCES users(id)"
+        string setting_key "smtp_host, smtp_port, etc"
+        string setting_value "Configuration value"
+        datetime created_at "DEFAULT CURRENT_TIMESTAMP"
+        datetime updated_at "DEFAULT CURRENT_TIMESTAMP"
     }
 
     DOMAIN {
         int id PK
-        int user_id FK
-        string domain_name
-        datetime created_at
-        date expiry_date
+        int user_id FK "REFERENCES users(id)"
+        string domain_name "NOT NULL"
+        datetime created_at "DEFAULT CURRENT_TIMESTAMP"
+        datetime last_checked "When SSL was last verified"
+        datetime expiry_date "SSL certificate expiry date"
+        string last_error "Error message if check failed"
+        boolean is_active "DEFAULT 1 - soft delete"
     }
 
-    NOTIFICATION {
+    NOTIFICATION_LOG {
         int id PK
-        int domain_id FK
-        int days_before
-        datetime sent_at
+        int domain_id FK "REFERENCES domains(id)"
+        int days_before "Notification trigger: 30, 14, 7, 3, 1, 0"
+        datetime sent_at "DEFAULT CURRENT_TIMESTAMP"
+        string notification_type "email, discord, slack, etc"
     }
-
 ```

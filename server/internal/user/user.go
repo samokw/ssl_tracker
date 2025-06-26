@@ -12,10 +12,9 @@ type Password string
 type WebHookUrl string
 
 type User struct {
-	UserID     types.UserID
-	Email      Email
-	Password   Password
-	WebHookUrl WebHookUrl
+	UserID   types.UserID
+	Email    Email
+	Password Password
 }
 
 func HashPassword(password string) (string, error) {
