@@ -2,18 +2,30 @@ package notification
 
 import (
 	"time"
+
 	"github.com/samokw/ssl_tracker/internal/types"
 )
 
-type NotificationID uint
+type NotificationType string
 
-type DaysBefore time.Time
+const (
+	NotificationTypeEmail   NotificationType = "email"
+	NotificationTypeDiscord NotificationType = "discord"
+	NotificationTypeSlack   NotificationType = "slack"
+)
 
-type SentAt time.Time
+func NewNotificationType(nType string) NotificationType {
+	return NotificationType(nType)
+}
+
+func (n NotificationType) String() string {
+	return string(n)
+}
 
 type Notification struct {
-	NotificationID NotificationID
-	DomainID       types.DomainID
-	DaysBefore     DaysBefore
-	SentAt         SentAt
+	NotificationID   uint             `db:"id"`
+	DomainID         types.DomainID   `db:"domain_id"`
+	DaysBefore       int              `db:"days_before"`
+	SentAt           time.Time        `db:"sent_at"`
+	NotificationType NotificationType `db:"notification_type"`
 }
