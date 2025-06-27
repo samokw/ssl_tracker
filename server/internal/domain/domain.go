@@ -10,7 +10,7 @@ type DomainName string
 type CreatedAt time.Time
 type ExpiryDate time.Time
 type LastChecked time.Time
-type LastError string
+type LastError string // The type of error that occurred when checking
 
 func NewDomainName(name string) DomainName {
 	return DomainName(name)
@@ -65,9 +65,8 @@ func (l LastError) String() string {
 	return string(l)
 }
 
-// Domain struct with database tags
 type Domain struct {
-	DomainID    types.DomainID `db:"domain_id"`
+	DomainID    types.DomainID `db:"id"`
 	UserID      types.UserID   `db:"user_id"`
 	DomainName  DomainName     `db:"domain_name"`
 	CreatedAt   CreatedAt      `db:"created_at"`
