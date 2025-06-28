@@ -1,8 +1,13 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type UserID uint
+
+type ExpiryDate time.Time
 
 type DomainID uint
 
@@ -36,4 +41,16 @@ func ValidateDomainID(domainID DomainID) error {
 		return fmt.Errorf("domain ID cannot be zero")
 	}
 	return nil
+}
+
+func NewExpiryDate(t time.Time) ExpiryDate {
+	return ExpiryDate(t)
+}
+
+func (e ExpiryDate) Time() time.Time {
+	return time.Time(e)
+}
+
+func (e ExpiryDate) String() string {
+	return time.Time(e).Format(time.RFC3339)
 }

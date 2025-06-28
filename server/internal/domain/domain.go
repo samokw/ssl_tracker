@@ -37,13 +37,6 @@ func NewExpiryDate(t time.Time) ExpiryDate {
 	return ExpiryDate(t)
 }
 
-func (e ExpiryDate) Time() time.Time {
-	return time.Time(e)
-}
-
-func (e ExpiryDate) String() string {
-	return time.Time(e).Format(time.RFC3339)
-}
 
 func NewLastChecked(t time.Time) LastChecked {
 	return LastChecked(t)
