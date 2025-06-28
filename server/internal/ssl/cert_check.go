@@ -14,6 +14,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/samokw/ssl_tracker/internal/types"
 )
 
 // TimeLeft represents the days left until an SSL certificate until it expires
@@ -22,9 +24,6 @@ type TimeLeft int
 // Hostname represents a validated domain name
 type Hostname string
 
-// ExpiryDate represents the Date when the SSL certificate will expire
-type ExpiryDate time.Time
-
 // SSLCertificate represents SSL certificate infromation.
 //
 // This includes Hostname, Expiry Date, and Time Remaining until it expires
@@ -32,7 +31,7 @@ type SSLCertificate struct {
 	// Hostname is the domain name this certificate is valid for
 	Hostname Hostname
 	// ExpiryDate is when the certificate expires
-	ExpiryDate ExpiryDate
+	ExpiryDate types.ExpiryDate
 	// TimeLeft is the number days left until the certificate expires
 	TimeLeft TimeLeft
 }
@@ -197,7 +196,7 @@ func CheckSSLCertificate(ctx context.Context, hostname Hostname) (*SSLCertificat
 	}
 
 	cert := certs[0]
-	expiryDate := ExpiryDate(cert.NotAfter)
+	expiryDate := types.NewExpiryDate(cert.NotAfter)
 	timeLeft := TimeLeft(time.Until(cert.NotAfter).Hours() / 24)
 
 	logger.Info("SSL certificate check completed",
