@@ -33,10 +33,6 @@ func (c CreatedAt) String() string {
 }
 
 // ExpiryDate methods
-func NewExpiryDate(t time.Time) ExpiryDate {
-	return ExpiryDate(t)
-}
-
 
 func NewLastChecked(t time.Time) LastChecked {
 	return LastChecked(t)
@@ -59,12 +55,12 @@ func (l LastError) String() string {
 }
 
 type Domain struct {
-	DomainID    types.DomainID `db:"id"`
-	UserID      types.UserID   `db:"user_id"`
-	DomainName  DomainName     `db:"domain_name"`
-	CreatedAt   CreatedAt      `db:"created_at"`
-	ExpiryDate  *ExpiryDate    `db:"expiry_date"`
-	LastChecked *LastChecked   `db:"last_checked"`
-	LastError   *LastError     `db:"last_error"`
-	IsActive    bool           `db:"is_active"`
+	DomainID    types.DomainID    `db:"id"`
+	UserID      types.UserID      `db:"user_id"`
+	DomainName  DomainName        `db:"domain_name"`
+	CreatedAt   CreatedAt         `db:"created_at"`
+	ExpiryDate  *types.ExpiryDate `db:"expiry_date"`
+	LastChecked *LastChecked      `db:"last_checked"`
+	LastError   *LastError        `db:"last_error"`
+	IsActive    bool              `db:"is_active"`
 }

@@ -42,7 +42,7 @@ func (r *Repository) scanDomainRow(row *sql.Row) (Domain, error) {
 		IsActive:   isActive,
 	}
 	if expiryDate.Valid {
-		ed := NewExpiryDate(expiryDate.Time)
+		ed := types.NewExpiryDate(expiryDate.Time)
 		domain.ExpiryDate = &ed
 	} else {
 		domain.ExpiryDate = nil
@@ -86,7 +86,7 @@ func (r *Repository) scanDomain(rows *sql.Rows) (Domain, error) {
 		IsActive:   isActive,
 	}
 	if expiryDate.Valid {
-		ed := NewExpiryDate(expiryDate.Time)
+		ed := types.NewExpiryDate(expiryDate.Time)
 		domain.ExpiryDate = &ed
 	} else {
 		domain.ExpiryDate = nil
