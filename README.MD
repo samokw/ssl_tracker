@@ -12,9 +12,13 @@ Features:
 
 ## Getting Started
 
-### Coming Soon 
+
 
 Get the binary via curl
+
+```bash
+curl -fsSL https://cli.samokw.name/install | bash
+```
 
 To build the binary for your system:
 
