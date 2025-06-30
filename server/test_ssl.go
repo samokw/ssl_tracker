@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	db, err := database.InitSQLite(dbPath)
 	if err != nil {
 		log.Fatal(err)
@@ -25,18 +25,18 @@ func main() {
 	domainRepo := domain.NewRepository(db)
 	sslService := ssl.NewCertService()
 	domainService := domain.NewService(domainRepo, sslService)
-	
+
 	fmt.Println("Testing SSL checking for all domains...")
 	err = domainService.CheckAllDomainsSSLSync(types.UserID(1))
 	if err != nil {
 		log.Printf("Error checking SSL: %v", err)
 	}
-	
+
 	domains, err := domainService.GetUsersDomains(types.UserID(1))
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	fmt.Printf("\nResults for %d domains:\n", len(domains))
 	for _, d := range domains {
 		fmt.Printf("Domain: %s\n", d.DomainName.String())
