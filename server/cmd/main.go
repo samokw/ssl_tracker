@@ -1,58 +1,50 @@
 package main
 
 import (
-	"context"
-	"crypto/tls"
 	"fmt"
+	"io"
 	"log/slog"
-	"net"
 	"os"
-	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/samokw/ssl_tracker/internal/database"
+	"github.com/samokw/ssl_tracker/internal/domain"
+	"github.com/samokw/ssl_tracker/internal/ssl"
+	"github.com/samokw/ssl_tracker/internal/tui"
 )
 
 // Creating a basic program that will check the exipry of a predefined sercer
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-		AddSource: true,
+	// Disable logging for TUI mode to prevent console output interference
+	logger := slog.New(slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{
+		Level:     slog.LevelError, // Only log errors, and discard them
+		AddSource: false,
 	}))
 	slog.SetDefault(logger)
 
-	ctx := context.WithValue(context.Background(), "logger", logger)
-	ctx.Done()
-
-
-
-
-
-	hostname := "courselink.uoguelph.ca"
-	// this is the https port
-	port := "443"
-
-	// Create a tcp connection to the server.
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort(hostname, port), 3*time.Second)
+	// Initialize database
+	dbPath, err := database.GetDefaultDBPath()
 	if err != nil {
-		slog.Error("failed to connect to server: %v", err)
+		fmt.Printf("Error getting database path: %v\n", err)
+		os.Exit(1)
 	}
-	defer conn.Close()
 
-	client := tls.Client(conn, &tls.Config{
-		ServerName: hostname,
-	})
-
-	err = client.Handshake()
+	db, err := database.InitSQLite(dbPath)
 	if err != nil {
-		slog.Error("failed to complete TLS handshake: %v", err)
+		fmt.Printf("Error initializing database: %v\n", err)
+		os.Exit(1)
 	}
-	defer client.Close()
+	defer db.Close()
 
-	certs := client.ConnectionState().PeerCertificates
-	if len(certs) == 0 {
-		slog.Any("error", "no certificate found")
+	domainRepo := domain.NewRepository(db)
+	sslService := ssl.NewCertService()
+	domainService := domain.NewService(domainRepo, sslService)
+
+	app := tui.NewApp(domainService)
+	program := tea.NewProgram(app, tea.WithAltScreen())
+
+	if _, err := program.Run(); err != nil {
+		fmt.Printf("Error running program: %v\n", err)
+		os.Exit(1)
 	}
-
-	cert := certs[0]
-	fmt.Printf("The SSL certificate for %s expires on: %s\n", hostname, cert.NotAfter.Format(time.RFC1123))
-	remainingDays := time.Until(cert.NotAfter).Hours() / 24
-	fmt.Printf("The certificate will expire in approximately %.0f days.\n", remainingDays)
 }

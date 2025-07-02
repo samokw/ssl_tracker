@@ -1,10 +1,15 @@
 package ssl
 
-import "log/slog"
+import (
+	"log/slog"
+	"sync"
+)
 
 type CertService struct {
 	pool    *WorkerPool
 	results func(Result)
+	started bool
+	mu      sync.Mutex
 }
 
 func NewCertService() *CertService {
@@ -15,8 +20,12 @@ func NewCertService() *CertService {
 
 func (cs *CertService) processResults() {
 	for result := range cs.pool.GetResults() {
-		if cs.results != nil {
-			cs.results(result)
+		cs.mu.Lock()
+		handler := cs.results
+		cs.mu.Unlock()
+
+		if handler != nil {
+			handler(result)
 		} else {
 			cs.defaultHandler(result)
 		}
@@ -24,8 +33,16 @@ func (cs *CertService) processResults() {
 }
 
 func (cs *CertService) Start() {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+
+	if cs.started {
+		return // Already started
+	}
+
 	cs.pool.Start()
 	go cs.processResults()
+	cs.started = true
 }
 
 func (cs *CertService) Stop() {
@@ -42,6 +59,8 @@ func (cs *CertService) CheckDomain(domain string, domainID, userID int) {
 }
 
 func (cs *CertService) SetResultHandler(handler func(Result)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
 	cs.results = handler
 }
 
