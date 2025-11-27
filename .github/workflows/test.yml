@@ -27,4 +27,84 @@ jobs:
 
       - name: Run tests with race detector
         working-directory: ./server
-        run: go test -race -v -timeout 5m ./internal/ssl/...
+        run: go test -race -v -timeout 5m ./...
+
+  fuzz:
+    name: Fuzz Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: server/go.sum
+
+      - name: Download dependencies
+        working-directory: ./server
+        run: go mod download
+
+
+      - name: Fuzz ValidateHostname
+        working-directory: ./server
+        run: go test -fuzz=FuzzValidateHostname -fuzztime=30s ./internal/ssl/...
+
+      - name: Fuzz NewHostname
+        working-directory: ./server
+        run: go test -fuzz=FuzzNewHostname -fuzztime=30s ./internal/ssl/...
+
+      - name: Fuzz DomainName
+        working-directory: ./server
+        run: go test -fuzz=FuzzDomainName -fuzztime=30s ./internal/domain/...
+
+      - name: Fuzz LastError
+        working-directory: ./server
+        run: go test -fuzz=FuzzLastError -fuzztime=30s ./internal/domain/...
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: server/go.sum
+
+      - name: Run go vet
+        working-directory: ./server
+        run: go vet ./...
+
+      - name: Check formatting
+        working-directory: ./server
+        run: |
+          if [ -n "$(gofmt -s -l .)" ]; then
+            echo "Code is not formatted"
+            exit 1
+          fi
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: server/go.sum
+
+      - name: Build
+        working-directory: ./server
+        run: go build -v ./...
