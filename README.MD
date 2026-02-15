@@ -17,7 +17,7 @@ Features:
 Get the binary via curl
 
 ```bash
-curl -fsSL https://cli.samokw.name/install | bash
+curl -fsSL https://cli.foundre.app/install | bash
 ```
 
 To build the binary for your system:
