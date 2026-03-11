@@ -70,6 +70,66 @@ func runMigrations(db *sql.DB) error {
 		return fmt.Errorf("failed to insert default user: %w", err)
 	}
 
+	if err := addDiscordWebhookColumn(db); err != nil {
+		return err
+	}
+
+	notificationsTable := `
+	CREATE TABLE IF NOT EXISTS notifications (
+		id                INTEGER PRIMARY KEY AUTOINCREMENT,
+		domain_id         INTEGER NOT NULL,
+		notification_type TEXT NOT NULL,
+		event_type        TEXT NOT NULL,
+		days_before       INTEGER,
+		condition_key     TEXT NOT NULL,
+		sent_at           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	if _, err := db.Exec(notificationsTable); err != nil {
+		return fmt.Errorf("failed to create notifications table: %w", err)
+	}
+
+	notificationsIndex := `
+	CREATE UNIQUE INDEX IF NOT EXISTS uq_notification_dedup
+		ON notifications (domain_id, notification_type, event_type, days_before, condition_key);`
+
+	if _, err := db.Exec(notificationsIndex); err != nil {
+		return fmt.Errorf("failed to create notifications dedup index: %w", err)
+	}
+
+	return nil
+}
+
+// since sqlite does not support ADD COLUMN IF NOT EXISTS, we need to check the metadata to see if the column exists.
+func addDiscordWebhookColumn(db *sql.DB) error {
+	rows, err := db.Query(`PRAGMA table_info('users')`)
+	if err != nil {
+		return fmt.Errorf("failed to get query user table info: %w", err)
+	}
+	defer rows.Close()
+
+	//
+	for rows.Next() {
+		var colID int
+		var name, colType string
+		var notNull int
+		var defaultValue sql.NullString
+		var primaryKey int
+		if err := rows.Scan(&colID, &name, &colType, &notNull, &defaultValue, &primaryKey); err != nil {
+			return fmt.Errorf("failed to scan table info row: %w", err)
+		}
+		// if the row already exists
+		if name == "discord_webhook_url" {
+			return nil
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("failed to iterate table info: %w", err)
+	}
+
+	if _, err := db.Exec(`ALTER TABLE users ADD COLUMN discord_webhook_url TEXT`); err != nil {
+		return fmt.Errorf("failed to add discord_webhook_url column: %w", err)
+	}
 	return nil
 }
 
