@@ -8,6 +8,13 @@ import (
 
 type NotificationType string
 
+type EventType string
+
+const (
+	EventTypeExpiry  EventType = "expiry"
+	EventTypeFailure EventType = "failure"
+)
+
 const (
 	NotificationTypeEmail   NotificationType = "email"
 	NotificationTypeDiscord NotificationType = "discord"
@@ -28,4 +35,6 @@ type Notification struct {
 	DaysBefore       int              `db:"days_before"`
 	SentAt           time.Time        `db:"sent_at"`
 	NotificationType NotificationType `db:"notification_type"`
+	EventType        EventType
+	ConditionKey     string
 }

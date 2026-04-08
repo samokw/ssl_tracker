@@ -22,7 +22,7 @@ func (d *DiscordSender) Send(webhookURL, message string) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal json: %w", err)
 	}
-	req, err := http.NewRequest("POST", webhookURL, bytes.NewReader(discordJson))
+	req, err := http.NewRequest(http.MethodPost, webhookURL, bytes.NewReader(discordJson))
 	if err != nil {
 		return fmt.Errorf("failed to create a request: %w", err)
 	}
@@ -32,7 +32,6 @@ func (d *DiscordSender) Send(webhookURL, message string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get a response: %w", err)
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("discord webhook returned %d %s", resp.StatusCode, resp.Status)
 	}
